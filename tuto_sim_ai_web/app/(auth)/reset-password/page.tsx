@@ -1,18 +1,21 @@
 'use client';
 
-import ResetPassword from '@/components/auth/ResetPassword';
+import { Card } from '@/components/ui/Card';
+import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm';
 import Link from 'next/link';
 
 export default function ResetPasswordPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background">
-      <div className="w-full max-w-md space-y-8">
-        <ResetPassword />
-        <div className="text-center text-sm">
-          <Link href="/auth/login" className="text-primary hover:underline">
-            로그인으로 돌아가기
-          </Link>
-        </div>
+    <div className="container mx-auto px-4 h-screen flex items-center justify-center">
+      <div className="w-full max-w-md">
+        <Card className="p-6">
+          <ResetPasswordForm />
+          <div className="mt-4 text-center text-sm text-muted-foreground">
+            <Link href="/login" className="text-primary hover:underline">
+              로그인 페이지로 돌아가기
+            </Link>
+          </div>
+        </Card>
       </div>
     </div>
   );

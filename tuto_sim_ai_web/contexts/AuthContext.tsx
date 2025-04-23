@@ -8,6 +8,9 @@ import {
   signOut,
   onAuthStateChanged,
   AuthError,
+  sendPasswordResetEmail,
+  GoogleAuthProvider,
+  signInWithPopup,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
@@ -18,7 +21,9 @@ interface AuthContextType {
   loading: boolean;
   signUp: (email: string, password: string) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
 }
 
 const defaultAuthContext: AuthContextType = {
@@ -30,7 +35,13 @@ const defaultAuthContext: AuthContextType = {
   signIn: async () => {
     throw new Error('AuthContext가 초기화되지 않았습니다.');
   },
+  signInWithGoogle: async () => {
+    throw new Error('AuthContext가 초기화되지 않았습니다.');
+  },
   logout: async () => {
+    throw new Error('AuthContext가 초기화되지 않았습니다.');
+  },
+  resetPassword: async () => {
     throw new Error('AuthContext가 초기화되지 않았습니다.');
   },
 };
@@ -216,8 +227,62 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const resetPassword = async (email: string) => {
+    try {
+      console.log('🔑 [비밀번호 재설정] 시도:', email);
+      await sendPasswordResetEmail(auth, email);
+      console.log('✅ [비밀번호 재설정] 이메일 전송 성공');
+    } catch (error) {
+      console.error('❌ [비밀번호 재설정] 오류:', error);
+      const authError = error as AuthError;
+      if (authError.code === 'auth/user-not-found') {
+        throw new Error('해당 이메일로 가입된 계정을 찾을 수 없습니다.');
+      } else if (authError.code === 'auth/invalid-email') {
+        throw new Error('유효하지 않은 이메일 형식입니다.');
+      } else if (authError.code === 'auth/too-many-requests') {
+        throw new Error('너무 많은 요청이 있었습니다. 잠시 후 다시 시도해주세요.');
+      }
+      throw new Error('비밀번호 재설정 이메일 전송 중 오류가 발생했습니다.');
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    try {
+      setLoading(true);
+      console.log('🔑 [Google 로그인] 시도');
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      
+      // 로그인 후 원래 가려던 페이지로 이동
+      const searchParams = new URLSearchParams(window.location.search);
+      const fromPath = searchParams.get('from');
+      const targetPath = fromPath || '/dashboard';
+      console.log('✅ [Google 로그인 성공] 리다이렉션 ->', targetPath);
+      await router.push(targetPath);
+    } catch (error) {
+      console.error('❌ [Google 로그인] 오류:', error);
+      const authError = error as AuthError;
+      if (authError.code === 'auth/popup-closed-by-user') {
+        throw new Error('로그인이 취소되었습니다.');
+      } else if (authError.code === 'auth/popup-blocked') {
+        throw new Error('팝업이 차단되었습니다. 팝업 차단을 해제해주세요.');
+      }
+      throw new Error('Google 로그인 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, signUp, signIn, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      loading, 
+      signUp, 
+      signIn,
+      signInWithGoogle, 
+      logout, 
+      resetPassword 
+    }}>
       {loading ? (
         <div className="flex min-h-screen items-center justify-center">
           <div className="text-center">

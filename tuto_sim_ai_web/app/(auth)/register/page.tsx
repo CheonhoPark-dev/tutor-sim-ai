@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { SignUpForm } from '@/components/auth/SignUpForm';
+import SignUpForm from '@/components/auth/SignUpForm';
 import { Container } from '@/components/ui/Container';
 
 export default function RegisterPage() {
@@ -10,7 +10,7 @@ export default function RegisterPage() {
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <div>
-            <h2 className="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 className="mt-6 text-center text-3xl font-bold tracking-tight text-gray-900">
               회원가입
             </h2>
           </div>
