@@ -5,7 +5,7 @@ import {
   User,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
-  signOut,
+  signOut as firebaseSignOut,
   onAuthStateChanged,
   AuthError,
   sendPasswordResetEmail,
@@ -24,6 +24,7 @@ interface AuthContextType {
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
 
 const defaultAuthContext: AuthContextType = {
@@ -42,6 +43,9 @@ const defaultAuthContext: AuthContextType = {
     throw new Error('AuthContext가 초기화되지 않았습니다.');
   },
   resetPassword: async () => {
+    throw new Error('AuthContext가 초기화되지 않았습니다.');
+  },
+  signOut: async () => {
     throw new Error('AuthContext가 초기화되지 않았습니다.');
   },
 };
@@ -217,7 +221,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       setLoading(true);
       console.log('🚪 [로그아웃] 시도');
-      await signOut(auth);
+      await firebaseSignOut(auth);
       router.push('/login');
     } catch (error) {
       console.error('❌ [로그아웃] 오류:', error);
@@ -273,6 +277,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const signOut = async () => {
+    try {
+      await firebaseSignOut(auth);
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
+  };
+
   return (
     <AuthContext.Provider value={{ 
       user, 
@@ -281,7 +293,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       signIn,
       signInWithGoogle, 
       logout, 
-      resetPassword 
+      resetPassword,
+      signOut
     }}>
       {loading ? (
         <div className="flex min-h-screen items-center justify-center">

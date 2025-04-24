@@ -5,9 +5,37 @@ import { Card } from '@/components/ui/Card';
 import { Typography } from '@/components/ui/Typography';
 import { Button } from '@/components/ui/Button';
 import Link from 'next/link';
+import { logError } from '@/config/firebase';
 
 export default function DashboardPage() {
   const { user } = useAuth();
+
+  const testErrorReporting = () => {
+    try {
+      // 여러 종류의 에러 테스트
+      const testCases = [
+        () => { throw new Error('일반 에러 테스트'); },
+        () => { throw new TypeError('타입 에러 테스트'); },
+        () => { throw new ReferenceError('참조 에러 테스트'); }
+      ];
+
+      // 랜덤하게 하나의 에러 선택
+      const randomTest = testCases[Math.floor(Math.random() * testCases.length)];
+      randomTest();
+
+    } catch (error) {
+      if (error instanceof Error) {
+        // Firebase Analytics에 에러 로깅 (추가 정보 포함)
+        logError(error, {
+          component: 'DashboardPage',
+          action: 'testErrorReporting',
+          userId: user?.uid || 'anonymous',
+          email: user?.email || 'anonymous',
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -56,6 +84,17 @@ export default function DashboardPage() {
                     <Button variant="outline" className="w-full">자료 관리</Button>
                   </Link>
                 </div>
+              </div>
+
+              {/* 에러 테스트 버튼 */}
+              <div className="mt-8">
+                <Button 
+                  variant="destructive" 
+                  onClick={testErrorReporting}
+                  className="w-full"
+                >
+                  에러 리포팅 테스트
+                </Button>
               </div>
             </div>
           </div>

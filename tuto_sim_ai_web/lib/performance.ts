@@ -1,5 +1,5 @@
 import React, { ComponentType } from 'react';
-import { getPerformance, trace } from 'firebase/performance';
+import { FirebasePerformance, getPerformance, PerformanceTrace, trace } from 'firebase/performance';
 import { app } from '../config/firebase';
 
 // Performance Monitoring 인스턴스 초기화
@@ -7,17 +7,25 @@ const performance = getPerformance(app);
 
 // 커스텀 트레이스 타입 정의
 export type CustomTraceType = 
+  | 'api_call_test'
+  | 'data_processing_test'
+  | 'image_load_test'
   | 'lecture_load'
   | 'student_profile_load'
   | 'feedback_generation'
   | 'material_upload'
   | 'search_execution';
 
+interface TraceMetadata {
+  testType?: 'api' | 'processing' | 'resource';
+  [key: string]: any;
+}
+
 // 커스텀 트레이스 시작
 export const startCustomTrace = async (
   traceName: CustomTraceType,
   attributes?: Record<string, string>
-) => {
+): Promise<PerformanceTrace | null> => {
   try {
     const customTrace = trace(performance, traceName);
     
@@ -36,7 +44,7 @@ export const startCustomTrace = async (
 };
 
 // 커스텀 트레이스 종료
-export const stopCustomTrace = (customTrace: any) => {
+export const stopCustomTrace = (customTrace: PerformanceTrace | null) => {
   try {
     if (customTrace) {
       customTrace.stop();
@@ -48,7 +56,7 @@ export const stopCustomTrace = (customTrace: any) => {
 
 // 메트릭 기록
 export const recordMetric = (
-  customTrace: any,
+  customTrace: PerformanceTrace | null,
   metricName: string,
   value: number
 ) => {
@@ -62,34 +70,50 @@ export const recordMetric = (
 };
 
 // 성능 모니터링 유틸리티
-export const measureAsyncOperation = async <T>(
+export async function measureAsyncOperation<T>(
   traceName: CustomTraceType,
   operation: () => Promise<T>,
-  attributes?: Record<string, string>
-): Promise<T> => {
-  const customTrace = await startCustomTrace(traceName, attributes);
+  metadata?: TraceMetadata
+): Promise<T> {
+  const customTrace = trace(performance, traceName);
   
+  // 메타데이터 추가
+  if (metadata) {
+    Object.entries(metadata).forEach(([key, value]) => {
+      if (typeof value === 'string') {
+        customTrace.putAttribute(key, value);
+      } else if (typeof value === 'number') {
+        customTrace.putMetric(key, value);
+      }
+    });
+  }
+
   try {
+    customTrace.start();
     const result = await operation();
     return result;
   } finally {
-    stopCustomTrace(customTrace);
+    customTrace.stop();
   }
-};
+}
 
 // 자동 성능 추적 HOC
-export const withPerformanceTracking = (
+export function withPerformanceTracking<P extends object>(
   traceName: CustomTraceType,
   attributes?: Record<string, string>
-) => {
-  return (WrappedComponent: ComponentType<any>) => {
-    return function PerformanceTrackedComponent(props: any) {
+): (WrappedComponent: ComponentType<P>) => React.FC<P> {
+  return (WrappedComponent: ComponentType<P>) => {
+    const PerformanceTrackedComponent: React.FC<P> = (props) => {
       React.useEffect(() => {
-        const trace = startCustomTrace(traceName, attributes);
-        return () => stopCustomTrace(trace);
+        const tracePromise = startCustomTrace(traceName, attributes);
+        return () => {
+          tracePromise.then(trace => stopCustomTrace(trace));
+        };
       }, []);
 
-      return <WrappedComponent {...props} />;
+      return React.createElement(WrappedComponent, props);
     };
+    
+    return PerformanceTrackedComponent;
   };
-}; 
+} 

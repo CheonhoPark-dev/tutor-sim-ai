@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# key files
+tuto_sim_ai_web/tutosimai-firebase-adminsdk-*.json
