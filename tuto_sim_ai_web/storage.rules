@@ -1,0 +1,70 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    // 기본적으로 모든 접근 거부
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+    
+    // 사용자 폴더 접근 규칙
+    match /users/{userId}/{type}/{fileName} {
+      // 인증된 사용자만 접근 가능
+      function isAuthenticated() {
+        return request.auth != null;
+      }
+      
+      // 자신의 폴더에만 접근 가능
+      function isOwner() {
+        return request.auth.uid == userId;
+      }
+      
+      // 관리자 확인
+      function isAdmin() {
+        return request.auth.token.role == 'admin';
+      }
+      
+      // 파일 크기 제한 (50MB)
+      function isValidFileSize() {
+        return request.resource.size <= 50 * 1024 * 1024;
+      }
+      
+      // 허용된 파일 타입 확인
+      function isValidFileType() {
+        return type in ['lectures', 'materials'];
+      }
+      
+      // 허용된 MIME 타입 확인
+      function isValidContentType() {
+        let allowed = [
+          'image/jpeg',
+          'image/png',
+          'image/gif',
+          'application/pdf',
+          'video/mp4',
+          'audio/mpeg',
+          'text/plain'
+        ];
+        return request.resource.contentType in allowed;
+      }
+      
+      // 읽기 규칙
+      allow read: if isAuthenticated() && (isOwner() || isAdmin());
+      
+      // 생성 규칙
+      allow create: if isAuthenticated() 
+        && isOwner()
+        && isValidFileType()
+        && isValidFileSize()
+        && isValidContentType();
+      
+      // 삭제 규칙
+      allow delete: if isAuthenticated() && (isOwner() || isAdmin());
+      
+      // 업데이트 규칙 (메타데이터만)
+      allow update: if isAuthenticated() 
+        && isOwner()
+        && (!request.resource.size || request.resource.size == resource.size);
+    }
+  }
+} 

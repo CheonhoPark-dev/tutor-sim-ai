@@ -5,6 +5,8 @@ import { Footer } from '@/components/layout/Footer';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { AuthProvider } from '@/contexts/AuthContext';
 import '@/styles/globals.css';
+import { NetworkProvider } from '../contexts/NetworkContext';
+import { NetworkStatus } from '../components/NetworkStatus';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -23,11 +25,14 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <ThemeProvider>
-            <div className="flex flex-col min-h-screen">
-              <Header />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
+            <NetworkProvider>
+              <div className="flex flex-col min-h-screen">
+                <Header />
+                <main className="flex-1">{children}</main>
+                <Footer />
+                <NetworkStatus />
+              </div>
+            </NetworkProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>

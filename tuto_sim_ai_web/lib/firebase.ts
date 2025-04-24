@@ -1,35 +1,28 @@
 'use client';
 
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAnalytics, isSupported, Analytics } from "firebase/analytics";
 import { getAuth, setPersistence, browserLocalPersistence, Auth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAeFZdIYCNx-oJjwz5HmmT41h4u6HO6ML0",
-  authDomain: "tutosimai.firebaseapp.com",
-  projectId: "tutosimai",
-  storageBucket: "tutosimai.appspot.com",
-  messagingSenderId: "121993803860",
-  appId: "1:121993803860:web:74debfcd3597186ccc95c1",
-  measurementId: "G-G1T4RWFGWF"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID
 };
 
 // Firebase 초기화
-const app = initializeApp(firebaseConfig);
+const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Auth 초기화 및 지속성 설정을 Promise로 감싸기
 const initAuth = async (): Promise<Auth> => {
   const auth = getAuth(app);
-  try {
-    await setPersistence(auth, browserLocalPersistence);
-    console.log('✅ Firebase 인증 지속성이 LOCAL로 설정되었습니다.');
-    return auth;
-  } catch (error) {
-    console.error('❌ Firebase 인증 지속성 설정 오류:', error);
-    throw error;
-  }
+  await setPersistence(auth, browserLocalPersistence);
+  return auth;
 };
 
 // Auth 인스턴스 초기화
@@ -41,6 +34,7 @@ initAuth().catch(console.error);
 // Firestore 인스턴스 가져오기
 export const db = getFirestore(app);
 
+// Storage 초기화
 const storage = getStorage(app);
 
 // Analytics는 클라이언트 사이드에서만 초기화하고, 개발 환경에서는 비활성화
