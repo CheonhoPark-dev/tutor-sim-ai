@@ -4,11 +4,34 @@ AI 튜토리얼 시뮬레이션 웹 애플리케이션입니다.
 
 ## 기술 스택
 
+### 프론트엔드
 - Next.js 14
 - TypeScript
 - Tailwind CSS
 - Jest & Testing Library
 - ESLint & Prettier
+
+### 백엔드/인프라
+- Firebase (Authentication, Firestore, Storage, Functions)
+- Google Cloud Speech-to-Text API
+- Google Gemini Pro API
+
+## 주요 기능
+
+### 기본 기능
+- 실시간 음성/텍스트 기반 강의
+- 가상 학생 시스템 (2가지 성향)
+  - 호기심 많은 학생
+  - 무관심한 학생
+- 중학교 수준 맞춤형 상호작용
+- 실시간 피드백 시스템
+- PDF/이미지 파일 기본 표시 기능
+
+### 향후 추가 예정
+- 추가 가상 학생 성향
+- 다양한 교육 수준 지원
+- 문서 자동 분석 시스템
+- 자료 기반 질문 생성
 
 ## 시작하기
 
@@ -27,6 +50,11 @@ npm install
 ```bash
 cp .env.example .env.local
 ```
+
+필요한 환경 변수:
+- NEXT_PUBLIC_FIREBASE_CONFIG: Firebase 설정
+- NEXT_PUBLIC_GEMINI_API_KEY: Gemini API 키
+- GOOGLE_CLOUD_CREDENTIALS: Google Cloud 자격 증명 (STT용)
 
 4. 개발 서버 실행:
 ```bash
@@ -74,6 +102,10 @@ tuto_sim_ai_web/
 ├── pages/         # 페이지 컴포넌트
 ├── public/        # 정적 파일
 ├── styles/        # 글로벌 스타일
+├── lib/           # 유틸리티 및 API 클라이언트
+│   ├── gemini/    # Gemini API 관련 코드
+│   ├── stt/       # Speech-to-Text 관련 코드
+│   └── firebase/  # Firebase 관련 코드
 ├── tests/         # 테스트 파일
 └── types/         # TypeScript 타입 정의
 ```

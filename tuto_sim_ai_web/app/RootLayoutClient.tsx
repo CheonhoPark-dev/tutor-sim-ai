@@ -1,36 +1,30 @@
 'use client';
 
+import { AuthProvider } from '@/components/providers/AuthProvider';
+import { NetworkProvider } from '@/components/providers/NetworkProvider';
+import { ThemeProvider } from '@/components/providers/ThemeProvider';
 import { Header } from '@/components/layout/Header';
 import { Footer } from '@/components/layout/Footer';
-import { ThemeProvider } from 'next-themes';
-import { AuthProvider } from '@/contexts/AuthContext';
-import { NetworkProvider } from '@/contexts/NetworkContext';
 import { NetworkStatus } from '@/components/NetworkStatus';
-import { useEffect } from 'react';
 import { initializePerformance } from '@/config/firebase';
+import { useEffect } from 'react';
 
-export default function RootLayoutClient({
+export function RootLayoutClient({
   children,
 }: {
   children: React.ReactNode;
 }) {
   useEffect(() => {
-    // 성능 모니터링 초기화 (클라이언트 사이드에서만)
     initializePerformance();
   }, []);
 
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
-    >
+    <ThemeProvider>
       <AuthProvider>
         <NetworkProvider>
-          <div className="flex flex-col min-h-screen">
+          <div className="flex min-h-screen flex-col">
             <Header />
-            <main className="flex-1">
+            <main className="flex-1 container mx-auto px-4 py-8">
               {children}
             </main>
             <Footer />

@@ -1,13 +1,13 @@
-import type { Metadata } from 'next';
+import { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { RootLayoutClient } from './RootLayoutClient';
 import './globals.css';
-import RootLayoutClient from './RootLayoutClient';
 
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'TutoSimAI',
-  description: 'AI 학생들과 함께하는 강의 연습 플랫폼',
+  title: '튜토심AI - AI 기반 학습 도우미',
+  description: 'AI 기반의 맞춤형 학습 도우미 서비스',
 };
 
 export default function RootLayout({

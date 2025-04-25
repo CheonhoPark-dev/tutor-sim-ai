@@ -1,43 +1,57 @@
 'use client';
 
 import Link from 'next/link';
-import { Button } from '@/components/ui/Button';
-import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from 'next-themes';
-import { Sun, Moon } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
+import { useAuth } from '@/components/providers/AuthProvider';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/config/firebase';
 
 export function Header() {
-  const { user, signOut } = useAuth();
   const { theme, setTheme } = useTheme();
+  const { user } = useAuth();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error('로그아웃 중 오류 발생:', error);
+    }
+  };
 
   return (
-    <header className="w-full border-b">
-      <div className="container flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="text-2xl font-bold">TutoSimAI</span>
+    <header className="border-b">
+      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+        <Link href="/" className="text-xl font-bold">
+          튜토심AI
         </Link>
-
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
           >
-            {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+            {theme === 'dark' ? <Sun /> : <Moon />}
           </Button>
-
           {user ? (
-            <>
+            <div className="flex items-center gap-2">
               <Link href="/dashboard">
-                <Button variant="ghost">대시보드</Button>
+                <Button variant="ghost" size="icon">
+                  <User />
+                </Button>
               </Link>
-              <Button variant="outline" onClick={() => signOut()}>
+              <Button onClick={handleLogout} variant="ghost">
+                <LogOut className="mr-2 h-4 w-4" />
                 로그아웃
               </Button>
-            </>
+            </div>
           ) : (
             <Link href="/login">
-              <Button>로그인</Button>
+              <Button variant="ghost">
+                <LogIn className="mr-2 h-4 w-4" />
+                로그인
+              </Button>
             </Link>
           )}
         </div>
