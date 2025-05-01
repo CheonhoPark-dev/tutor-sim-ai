@@ -1,6 +1,11 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { GoogleGenerativeAI } from '@google/generative-ai';
+import * as express from 'express';
+import { Request, Response } from 'express';
+import { authMiddleware, checkRole, AuthRequest } from './middleware/auth';
+import { rateLimitMiddleware } from './middleware/rateLimit';
+import { KeyManager } from './services/keyManager';
 
 // 타입 정의
 interface VirtualStudent {
@@ -36,6 +41,29 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
 // Firestore 참조
 const db = admin.firestore();
+
+const app = express();
+
+// 미들웨어 적용
+app.use(express.json());
+app.use(authMiddleware);
+app.use(rateLimitMiddleware);
+
+// Gemini API 엔드포인트
+app.post('/api/gemini/chat', checkRole(['user', 'admin']), async (req: AuthRequest, res: Response) => {
+  try {
+    const keyManager = KeyManager.getInstance();
+    const apiKey = await keyManager.getKey('gemini');
+    
+    // Gemini API 호출 로직은 추후 구현
+    // TODO: Implement Gemini API call
+
+    res.json({ success: true });
+  } catch (error: unknown) {
+    console.error('Gemini API 오류:', error);
+    res.status(500).json({ error: '내부 서버 오류가 발생했습니다.' });
+  }
+});
 
 // 강의 생성 시 AI 피드백 생성
 export const generateAIFeedback = functions.firestore
@@ -315,4 +343,7 @@ export const analyzeLearningMaterial = functions.https.onCall(async (data: {
     }
     throw new functions.https.HttpsError('internal', '학습 자료 분석 중 오류가 발생했습니다.');
   }
-}); 
+});
+
+// Cloud Functions로 내보내기
+export const api = functions.region('asia-northeast3').https.onRequest(app); 
