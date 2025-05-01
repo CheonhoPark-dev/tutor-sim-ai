@@ -5,16 +5,14 @@ import { useTheme } from 'next-themes';
 import { Button } from '@/components/ui/Button';
 import { Sun, Moon, LogIn, LogOut, User } from 'lucide-react';
 import { useAuth } from '@/components/providers/AuthProvider';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/config/firebase';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
 
   const handleLogout = async () => {
     try {
-      await signOut(auth);
+      await logout();
     } catch (error) {
       console.error('로그아웃 중 오류 발생:', error);
     }

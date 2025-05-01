@@ -222,6 +222,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setLoading(true);
       console.log('🚪 [로그아웃] 시도');
       await firebaseSignOut(auth);
+      Cookies.remove('auth');  // 명시적 쿠키 제거
+      setUser(null);  // 사용자 상태 초기화
       router.push('/login');
     } catch (error) {
       console.error('❌ [로그아웃] 오류:', error);
