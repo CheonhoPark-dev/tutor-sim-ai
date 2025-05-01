@@ -73,7 +73,7 @@
 | 프론트엔드 (웹) | Next.js (React 기반) |
 | 프론트엔드 (앱) | Flutter (Android / iOS) |
 | 백엔드 | Firebase, Node.js 또는 Express |
-| AI 연동 | OpenAI GPT, Whisper API, Text-to-Speech API |
+| AI 연동 | OpenAI GPT, Google STT API, Text-to-Speech API |
 | DB | Firebase Firestore 또는 PostgreSQL |
 | 배포 | 웹: Vercel or Firebase Hosting / 앱: Google Play, App Store |
 
@@ -88,7 +88,7 @@ TutorSim.AI는 **웹과 앱을 동시에 지원하는 구조**로 설계되어 �
    ↓
 [Next.js 웹]     [Flutter 앱]
     ↘             ↙
-     [Firebase] + [AI API (OpenAI, Whisper)]
+     [Firebase] + [AI API (Gemini, Google STT)]
             ↕
       DB, Auth, Storage, Functions
 ```

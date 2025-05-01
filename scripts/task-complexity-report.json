@@ -41,10 +41,10 @@
     },
     {
       "taskId": 5,
-      "taskTitle": "Implement Whisper API for Speech-to-Text",
+      "taskTitle": "Implement Google STT API for Speech-to-Text",
       "complexityScore": 7,
       "recommendedSubtasks": 6,
-      "expansionPrompt": "Break down the Whisper API integration into subtasks covering audio recording setup, streaming implementation, real-time text display, error handling, and performance optimization to meet the 1-second response requirement.",
+      "expansionPrompt": "Break down the Google STT API integration into subtasks covering audio recording setup, streaming implementation, real-time text display, error handling, and performance optimization to meet the 1-second response requirement.",
       "reasoning": "Real-time speech recognition with strict performance requirements is complex. It involves audio processing, API integration, and creating a responsive UI component, with particular attention to error handling and performance optimization."
     },
     {
